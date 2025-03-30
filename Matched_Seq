@@ -1,0 +1,35 @@
+library(readODS)
+library(Biostrings)
+
+ods_data <- read_ods("path/copepods_coi_5p_fresh.ods", sheet = 1)
+
+land_sequences <- as.character(ods_data$nucleotides)
+
+fasta_sequences <- readDNAStringSet("path/fasta.fas")
+fasta_sequence_data <- as.character(fasta_sequences)
+
+matching_indices <- which(fasta_sequence_data %in% land_sequences)
+
+cat("Number of matching sequences between the .ods file and the FASTA file:", length(matching_indices), "\n")
+
+matching_fasta_headers <- names(fasta_sequences)[matching_indices]
+cat("Matching sequence headers:\n")
+print(matching_fasta_headers)
+
+matched_sequences <- fasta_sequences[matching_indices]
+writeXStringSet(matched_sequences, filepath = "path/matched_sequences.fas", format = "fasta")
+cat("Matched sequences saved to a new FASTA file!\n")
+
+sequence_lengths_matched <- width(matched_sequences)
+min_length_matched <- min(sequence_lengths_matched)
+max_length_matched <- max(sequence_lengths_matched)
+
+cat("Minimum sequence length (matched):", min_length_matched, "\n")
+cat("Maximum sequence length (matched):", max_length_matched, "\n")
+
+sequence_lengths_original <- width(fasta_sequences)
+min_length_original <- min(sequence_lengths_original)
+max_length_original <- max(sequence_lengths_original)
+
+cat("Minimum sequence length (original):", min_length_original, "\n")
+cat("Maximum sequence length (original):", max_length_original, "\n")
